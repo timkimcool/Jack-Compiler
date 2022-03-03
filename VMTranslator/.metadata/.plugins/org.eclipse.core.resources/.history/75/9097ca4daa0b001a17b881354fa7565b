@@ -1,0 +1,218 @@
+package translator;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+public class CodeWriter {
+	private FileWriter print;
+	private Map<String, String> map;
+	
+	public CodeWriter(String s) throws IOException {
+		this.print = new FileWriter(s);
+		map = new HashMap<String, String>();
+		map.put("local", "LCL");
+		map.put("argument", "ARG");
+		map.put("this", "THIS");
+		map.put("that", "THAT");
+	}
+	
+	public void process (String s) throws IOException {
+		//String ret = "";
+		String ret = "//" + s + "\n";
+		String[] arr = s.split(" ");
+		
+		if(arr.length == 1) {
+			ret += writeArithmetic(s);
+			print.write(ret);
+			return;
+		}
+		
+		String arg1 = arr[1];
+		if (!arr[2].isEmpty()) {
+			String arg2 = arr[2];
+		}
+		
+		if(map.containsKey(arg1)) {
+			arg1 = map.get(arg1);
+		}
+		
+		String f = arr[0];
+		
+		switch (f) {
+			case "C_ARITHMETIC":
+				ret += writeArithmetic(s);
+				break;
+			case "push":
+				ret += pp(f, arg1, arg2);
+				break;
+			case "pop":
+				ret += pp(f, arg1, arg2);
+				break;
+			case "C_LABEL":
+				break;
+			case "C_GOTO":
+				break;
+			case "C_IF":
+				break;
+			case "function":
+				break;
+			case "C_RETURN":
+				break;
+			case "C_CALL":
+				break;
+		}
+		print.write(ret);
+	}
+	
+	public String writeArithmetic(String s) {
+		String ret = "";
+		String op = "";
+		switch (s) {
+		case "add":
+			op = "+";
+			ret += "@SP\n";
+			ret += "AM=M-1\n";
+			ret += "D=M\n";
+			ret += "@R13\n";
+			ret += "M=D\n";
+			ret += "@SP\n";
+			ret += "AM=M-1\n";
+			ret += "D=M\n";
+			ret += "@R13\n";
+			ret += "D=D" + op + "M\n";
+			ret += "@SP\n";
+			ret += "AM=M+1\n";
+			ret += "A=A-1\n";
+			ret += "M=D\n";
+			break;
+		case "sub":
+			op = "-";
+			ret += "@SP\n";
+			ret += "AM=M-1\n";
+			ret += "D=M\n";
+			ret += "@R13\n";
+			ret += "M=D\n";
+			ret += "@SP\n";
+			ret += "AM=M-1\n";
+			ret += "D=M\n";
+			ret += "@R13\n";
+			ret += "D=D" + op + "M\n";
+			ret += "@SP\n";
+			ret += "AM=M+1\n";
+			ret += "A=A-1\n";
+			ret += "M=D\n";
+			break;
+		case "neg":
+			
+			break;
+		case "eq":
+			
+			break;
+		case "gt":
+			
+			break;
+		case "lt":
+			
+			break;
+		case "and":
+			
+			break;
+		case "or":
+			
+			break;
+		case "not":
+			
+			break;
+		}
+		
+		ret += "@SP\n";
+		ret += "AM=M-1\n";
+		ret += "D=M\n";
+		ret += "@R13\n";
+		ret += "M=D\n";
+		ret += "@SP\n";
+		ret += "AM=M-1\n";
+		ret += "D=M\n";
+		ret += "@R13\n";
+		ret += "D=D" + op + "M\n";
+		ret += "@SP\n";
+		ret += "AM=M+1\n";
+		ret += "A=A-1\n";
+		ret += "M=D\n";
+		
+		return ret;
+	}
+	public String pp(String f, String arg1, String arg2) {
+		String ret = "";
+		if (arg1.contentEquals("temp")) {
+			int i = 5 + Integer.parseInt(arg2);
+			ret += "@R" + String.valueOf(i) + "\n";
+			ret += "D=M\n";
+		} else if (arg1.contentEquals("pointer")) {
+				if (arg2.contentEquals("0")) {
+					ret += "@R3\n";
+				} else {
+					ret +="@R4\n";
+				}
+				if (f.contentEquals("push")) {
+					ret += "D=M\n";
+					} else { ret += "D=A\n";}
+		} else if (arg1.contentEquals("static")) {
+			int i = 16 + Integer.parseInt(arg2);
+			ret += "@" + String.valueOf(i) + "\n";
+			if (f.contentEquals("push")) {
+				ret += "D=M\n";
+				} else { ret += "D=A\n";}				
+		} else if (arg1.contentEquals("constant")) {
+			ret += "@" + arg2 + "\n";
+			ret += "D=A\n";
+		} else {
+			ret += "@" + arg1 + "\n";
+			ret += "D=M\n";
+			ret += "@" + arg2 + "\n";
+			if (f.contentEquals("push")) {
+			ret += "A=D+A\n";
+			ret += "D=M\n";
+			} else { ret += "D=D+A\n";}
+		}
+		
+		if (f.contentEquals("push")) {
+			ret += push(arg1, arg2);
+		} else {ret += pop(arg1, arg2); };
+		return ret;
+	}
+	
+	
+	public String push(String arg1, String arg2) {
+		String ret = "";
+		
+		ret += "@SP\n";
+		ret += "AM=M+1\n";
+		ret += "A=A-1\n";
+		ret += "M=D\n";
+		
+		return ret;
+	}
+	
+	public String pop(String arg1, String arg2) {
+		String ret ="";
+		
+		ret += "@R13\n";
+		ret += "M=D\n";
+		ret += "@SP\n";
+		ret += "AM=M-1\n";
+		ret += "D=M\n";
+		ret += "@R13\n";
+		ret += "A=M\n";
+		ret += "M=D\n";
+		
+		return ret;
+	}
+	
+	public void close() throws IOException {
+		print.close();
+	}
+	
+}

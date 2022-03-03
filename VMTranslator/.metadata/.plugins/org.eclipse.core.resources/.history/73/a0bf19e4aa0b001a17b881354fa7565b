@@ -1,0 +1,193 @@
+package translator;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+public class CodeWriter {
+	 private static final String ADD =
+	    "@SP\n" +
+	    "AM=M-1\n" +
+	    "D=M\n" +
+	    "A=A-1\n" +
+	    "M=D+M\n";
+
+	  private static final String SUB =
+	    "@SP\n" +
+	    "AM=M-1\n" +
+	    "D=M\n" +
+	    "A=A-1\n" +
+	    "M=M-D\n";
+
+	  private static final String NEG =
+	    "@SP\n" +
+	    "A=M-1\n" +
+	    "M=-M\n";
+
+	  private static final String AND =
+	    "@SP\n" +
+	    "AM=M-1\n" +
+	    "D=M\n" +
+	    "A=A-1\n" +
+	    "M=D&M\n";
+
+	  private static final String OR =
+	    "@SP\n" +
+	    "AM=M-1\n" +
+	    "D=M\n" +
+	    "A=A-1\n" +
+	    "M=D|M\n";
+
+	  private static final String NOT =
+	    "@SP\n" +
+	    "A=M-1\n" +
+	    "M=!M\n";
+
+	  // push D -> *SP++
+	  private static final String PUSH =
+		"D=M\n" +
+	    "@SP\n" +
+	    "A=M\n" +
+	    "M=D\n" +
+	    "@SP\n" +
+	    "M=M+1\n";
+
+	  // pop *SP-- -> *D
+	  private static final String POP =
+		"D=A\n" +
+	    "@R13\n" +
+	    "M=D\n" +
+	    "@SP\n" +
+	    "AM=M-1\n" +
+	    "D=M\n" +
+	    "@R13\n" +
+	    "A=M\n" +
+	    "M=D\n";
+	private FileWriter print;
+	private Map<String, String> map;
+	
+	public CodeWriter(String s) throws IOException {
+		this.print = new FileWriter(s);
+		map = new HashMap<String, String>();
+		map.put("local", "LCL");
+		map.put("argument", "ARG");
+		map.put("this", "THIS");
+		map.put("that", "THAT");
+	}
+	
+	public void process (String s) throws IOException {
+		//String ret = "";
+		String ret = "//" + s + "\n";
+		String[] arr = s.split(" ");
+		
+		if(arr.length == 1) {
+			ret += writeArithmetic(s);
+			print.write(ret);
+			return;
+		}
+		
+		String arg1 = arr[1];
+		if (!arr[2].isEmpty()) {
+			String arg2 = arr[2];
+		}
+		
+		if(map.containsKey(arg1)) {
+			arg1 = map.get(arg1);
+		}
+		
+		String f = arr[0];
+		
+		switch (f) {
+			case "C_ARITHMETIC":
+				ret += writeArithmetic(s);
+				break;
+			case "push":
+				ret += pp(f, arg1, arg2);
+				break;
+			case "pop":
+				ret += pp(f, arg1, arg2);
+				break;
+			case "C_LABEL":
+				break;
+			case "C_GOTO":
+				break;
+			case "C_IF":
+				break;
+			case "function":
+				break;
+			case "C_RETURN":
+				break;
+			case "C_CALL":
+				break;
+		}
+		print.write(ret);
+	}
+	
+	public String writeArithmetic(String s) {
+		String ret = "";
+		String op = "";
+		switch (s) {
+		case "add":
+			break;
+		case "sub":
+			break;
+		case "neg":
+			
+			break;
+		case "eq":
+			
+			break;
+		case "gt":
+			
+			break;
+		case "lt":
+			
+			break;
+		case "and":
+			
+			break;
+		case "or":
+			
+			break;
+		case "not":
+			
+			break;
+		}
+		
+		return ret;
+	}
+	public String pp(String f, String arg1, int arg2) {
+		//LCL, ARG, THIS, THAT
+		if (f == "LCL" || f == "ARG" || f == "THIS" || f == "THAT") {
+			return
+				"@" + f + "\n" +
+				"D=M\n" +
+				"@" + Integer.toString(arg2) + "\n" +
+				"D=D+A\n";
+		}
+		//pointer
+		if (f == "pointer") {
+			if (arg2 == 0) {
+				return
+					"@THIS\n";
+			} else {
+				return
+					"@THAT\n";
+			}
+		}
+		//constant, static, temp
+		if (f == "static") {
+			arg2 += 16;
+		} else if (f == "temp") {
+			arg2 += 5;
+		}
+		return
+			"@" + arg2 + "\n";
+	}
+	
+	public void close() throws IOException {
+		print.close();
+	}
+	
+}

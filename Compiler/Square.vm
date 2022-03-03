@@ -1,0 +1,196 @@
+function Square.new 0
+push constant 1
+call Memomy.alloc  1
+pop pointer 0
+push argument 0
+pop this 0
+push argument 1
+pop this 1
+push argument 2
+pop this 2
+call Square.draw 0
+pop temp 0
+return
+push pointer 0
+function Square.function 1
+push argument 1
+push constant 0
+not
+push this 0
+push this 1
+push this 0
+push this 2
+add
+push this 1
+push this 2
+add
+push constant 0
+push this 0
+push this 1
+push this 0
+push this 2
+add
+push this 1
+push this 2
+add
+push this 1
+push this 2
+add
+push constant 254
+lt
+push this 0
+push this 2
+add
+push constant 510
+lt
+and
+push this 2
+push constant 2
+add
+push constant 2
+push this 2
+push constant 2
+sub
+push constant 1
+push constant 0
+call Screen.setColor 1
+push this 0
+push this 1
+push this 2
+add
+push constant 1
+sub
+push this 0
+push this 2
+add
+push this 1
+push this 2
+add
+call Screen.drawRectangle 4
+push this 1
+push this 1
+eq
+push constant 2
+sub
+push constant 0
+not
+call Screen.setColor 1
+push this 0
+push this 1
+push this 0
+push this 2
+add
+push this 1
+push constant 1
+add
+call Screen.drawRectangle 4
+push this 1
+push this 2
+add
+push constant 254
+lt
+push constant 0
+call Screen.setColor 1
+push this 0
+push this 1
+push this 0
+push this 2
+add
+push this 1
+push constant 1
+add
+call Screen.drawRectangle 4
+push this 1
+push this 1
+eq
+push constant 2
+add
+push constant 0
+not
+call Screen.setColor 1
+push this 0
+push this 1
+push this 2
+add
+push constant 1
+sub
+push this 0
+push this 2
+add
+push this 1
+push this 2
+add
+call Screen.drawRectangle 4
+push constant 1
+push constant 0
+call Screen.setColor 1
+push this 0
+push this 2
+add
+push constant 1
+sub
+push this 1
+push this 0
+push this 2
+add
+push this 1
+push this 2
+add
+call Screen.drawRectangle 4
+push this 0
+push this 0
+eq
+push constant 2
+sub
+push constant 0
+not
+call Screen.setColor 1
+push this 0
+push this 1
+push this 0
+push constant 1
+add
+push this 1
+push this 2
+add
+call Screen.drawRectangle 4
+push this 0
+push this 2
+add
+push constant 510
+lt
+push constant 0
+call Screen.setColor 1
+push this 0
+push this 1
+push this 0
+push constant 1
+add
+push this 1
+push this 2
+add
+call Screen.drawRectangle 4
+push this 0
+push this 0
+eq
+push constant 2
+add
+push constant 0
+not
+call Screen.setColor 1
+push this 0
+push this 2
+add
+push constant 1
+sub
+push this 1
+push this 0
+push this 2
+add
+push this 1
+push this 2
+add
+call Screen.drawRectangle 4
+call Square.Memory 19
+pop temp 0
+push pointer 0

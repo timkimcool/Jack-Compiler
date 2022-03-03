@@ -1,0 +1,20 @@
+INDEX VERSION 1.131+D:\CS\Eclipse\workspace\Nand2TetrisVMTranslator\.metadata\.plugins\org.eclipse.jdt.core
+1221386179.index
+2514025711.index
+890973092.index
+2496846676.index
+3303191582.index
+2047937055.index
+1254913730.index
+1887855717.index
+4182934172.index
+2980242902.index
+3624077708.index
+2920593562.index
+1949761074.index
+383713653.index
+2797923137.index
+3827682722.index
+648344805.index
+3440397423.index
+1926055523.index

@@ -1,0 +1,250 @@
+package translator;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+public class CodeWriter {
+	private static final String FORM1 =
+			"@SP\n" +
+			"AM=M-1\n" +
+			"D=M\n" +
+			"A=A-1\n";
+	private static final String ADD =
+			FORM1 +
+			"M=D+M\n";
+
+	private static final String SUB =
+			FORM1 +
+			"M=M-D\n";
+
+	private static final String NEG =
+			"@SP\n" +
+			"A=M-1\n" +
+			"M=-M\n";
+
+	private static final String AND =
+			"@SP\n" +
+			"AM=M-1\n" +
+			"D=M\n" +
+			"A=A-1\n" +
+			"M=D&M\n";
+
+	private static final String OR =
+			"@SP\n" +
+			"AM=M-1\n" +
+			"D=M\n" +
+			"A=A-1\n" +
+			"M=D|M\n";
+
+	private static final String NOT =
+			"@SP\n" +
+			"A=M-1\n" +
+			"M=!M\n";
+
+	// push D -> *SP++
+	private static final String PUSH =
+			"D=M\n" +
+			"@SP\n" +
+			"A=M\n" +
+			"M=D\n" +
+			"@SP\n" +
+			"M=M+1\n";
+
+	// pop *SP-- -> *D
+	private static final String POP =
+			"D=A\n" +
+			"@R13\n" +
+			"M=D\n" +
+			"@SP\n" +
+			"AM=M-1\n" +
+			"D=M\n" +
+			"@R13\n" +
+			"A=M\n" +
+			"M=D\n";
+	  
+	private FileWriter print;
+	private Map<String, String> map;
+	private String funcName;
+	private int counter;
+	
+	public CodeWriter(String s) throws IOException {
+		this.print = new FileWriter(s);
+		map = new HashMap<String, String>();
+		counter = 0;
+		map.put("local", "LCL");
+		map.put("argument", "ARG");
+		map.put("this", "THIS");
+		map.put("that", "THAT");
+	}
+	
+	public void process (String s) throws IOException {
+		String ret = "//" + s + "\n";
+		String[] arr = s.split(" ");
+		
+		if(arr.length == 1) {
+			ret += writeArithmetic(s);
+			print.write(ret);
+			return;
+		}
+		
+		String arg1 = arr[1];
+		int arg2 = 0;
+		if (!arr[2].isEmpty()) {
+			arg2 = Integer.parseInt(arr[2]);
+		}
+		
+		if(map.containsKey(arg1)) {
+			arg1 = map.get(arg1);
+		}
+		
+		String f = arr[0];
+		
+		switch (f) {
+			case "push":
+				ret += pp(f, arg1, arg2);
+				break;
+			case "pop":
+				ret += pp(f, arg1, arg2);
+				break;
+			case "label":
+				ret += writeLabel(arg1);
+				break;
+			case "goto":
+				ret += writeGoto(arg1);
+				break;
+			case "if-goto":
+				ret += writeIf(arg1);
+				break;
+			case "function":
+				funcName= arg1;
+				ret += writeFunction(arg1, arg2);
+				break;
+			case "C_RETURN":
+				break;
+			case "C_CALL":
+				break;
+		}
+		print.write(ret);
+	}
+	
+	public String writeArithmetic(String s) {
+		switch (s) {
+		case "add":
+			return ADD;
+		case "sub":
+			return SUB;
+		case "neg":
+			return NEG;
+		case "eq":
+			return writeCondition("JEQ");
+		case "gt":
+			return writeCondition("JGT");
+		case "lt":
+			return writeCondition("JLT");
+		case "and":
+			return AND;
+		case "or":
+			return OR;
+		case "not":
+			return NOT;
+		default: return "";
+		}
+		
+	}
+	
+	public String writeCondition(String j) {
+		increment();
+		return
+			FORM1 +
+			"D=M-D\n" +
+			"@TRUE" + counter + "\n" +
+			"D;" + j + "\n" +
+			"@SP\n" +
+			"A=M-1\n" +
+			"M=0\n" +
+			"@CONTINUE" + counter + "\n" +
+			"0;JMP\n" +
+			"(TRUE" + counter +")\n" +
+			"@SP\n" +
+			"A=M-1" +
+			"M=1" +
+			"(CONTINUE" + counter +")\n";
+	}
+	
+	public String pp(String f, String arg1, int arg2) {
+		//LCL, ARG, THIS, THAT
+		if (f == "LCL" || f == "ARG" || f == "THIS" || f == "THAT") {
+			return
+				"@" + f + "\n" +
+				"D=M\n" +
+				"@" + Integer.toString(arg2) + "\n" +
+				"D=D+A\n";
+		}
+		//pointer
+		if (f == "pointer") {
+			if (arg2 == 0) {
+				return
+					"@THIS\n";
+			} else {
+				return
+					"@THAT\n";
+			}
+		}
+		//constant, static, temp
+		if (f == "static") {
+			arg2 += 16;
+		} else if (f == "temp") {
+			arg2 += 5;
+		}
+		return
+			"@" + arg2 + "\n";
+	}
+	
+	public String writeFunction (String f, int numVars) {
+		String ret = 
+				"(" + f + ")\n" +
+				"@SP\n" +
+				"A=M\n";
+		for (int i = 0; i < numVars; i++) {
+			ret +=
+				"M=0\n" +
+				"A=A+1\n";
+		}
+		
+		return ret +
+			"D=A\n" +
+			"@SP\n" +
+			"M=D\n";
+	}
+	
+	public String writeGoto (String label) {
+		return 
+			"@" + funcName + "$" + label + "\n" +
+			"0;JMP\n";
+	}
+	
+	public String writeIf (String label) {
+		return
+			"@SP\n" +
+			"AM=M-1\n" +
+			"D=M" +
+			"@" + funcName + "$" + label + "\n" +
+			"D;JNE\n";
+	}
+	
+	public String writeLabel (String label) {
+		return
+			"(" + funcName + "$" + label + ")\n";
+	}
+	
+	public void increment() {
+		counter++;
+	}
+	
+	public void close() throws IOException {
+		print.close();
+	}
+	
+}

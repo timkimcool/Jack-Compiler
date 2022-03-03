@@ -1,0 +1,23 @@
+package translator;
+
+import java.io.IOException;
+
+public class Main {
+	public static void main(String[] args) throws IOException {
+		Parser first = new Parser("src/StackTest.vm");
+		CodeWriter C = new CodeWriter("src/StackTest.asm");
+		
+
+		while (first.hasNextLine()) {
+			String line = first.nextLine();
+			System.out.println(line);
+			if (line.isEmpty()) {
+				continue;
+			}
+			C.process(line);
+
+		}
+
+		C.close();
+	}
+}
