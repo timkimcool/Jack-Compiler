@@ -1,7 +1,11 @@
 # Jack Compiler
 Two-tiered compiler along with an Assembeler.
-* Front end (Compiler): translates from high-level language Jack to VM language.
-* Back end (VM Translator): translates from VM language to native code of host platform.
-* Assembler: translates Hack assembly language to binary code.
 
-##
+## Compiler
+Translates high-level Jack language into VM language. Input a .jack class file and a VM output file will be created.
+
+## VM Translator
+Translates VM language into hack assembly language. Input a text file containing VM commands and an .asm output file will be create.
+
+## Assembler
+Translates hack assembly language into binary code. Input an assembly file and an output file will be created with each line consisting of sixteen 0 and 1 characters.
